@@ -1,118 +1,103 @@
 RSpec.describe PartialFinder::Graph do
+  ::Link = PartialFinder::Link
+
   describe 'initialization' do
-    context 'with a partial path' do
-      it 'is valid' do
-        ['orders/_sidebar.html.erb', 'app/views/orders/_sidebar.html.erb'].each do |f|
-          expect { described_class.new(f, 'spec/dummy_app/') }.to_not raise_exception
-        end
-      end
+    it 'is valid with a link set' do
+      links = PartialFinder::LinkSet.new('app/views/orders/_sidebar.html.erb', 'spec/dummy_app/')
+      expect{ described_class.new(links) }.to_not raise_exception
     end
 
-    context 'witha non-partial path' do
-      it 'raises an exception' do
-        expect do
-          described_class.new('app/views/notapartial.html.erb', 'spec/dummy_app/')
-        end.to raise_exception { PartialFinder::NonPartialArgument }
-      end
-    end
-  end
-
-  describe 'finding files that reference a partial' do
-    it 'can find references regardless of quote types' do
-      file = 'app/views/orders/_popup.html.erb'
-      root = 'spec/dummy_app/'
-      expect(
-        described_class.files_that_reference(file, root)).to match_array(
-          [
-            'app/views/orders/show.html.erb',
-            'app/controllers/orders_controller.rb'
-          ]
-        )
-    end
-  end
-
-  describe 'building a list of links' do
-    context 'with no files' do
-      it 'has no links' do
-        partial = 'app/views/orders/_sidebar.html.erb'
-        root = 'spec/dummy_app/controllers'
-        expect(described_class.new(partial, root).links).to eq []
-      end
-    end
-
-    context 'with files' do
-      context 'without any infinite loops' do
-        it 'has links' do
-          partial = 'app/views/orders/_sidebar.html.erb'
-          root = 'spec/dummy_app/'
-          expect(described_class.new(partial, root).links).to eq(
-            [
-              { partial => 'app/views/orders/_popup.html.erb' },
-              { 'app/views/orders/_popup.html.erb' => 'app/controllers/orders_controller.rb' },
-              { 'app/views/orders/_popup.html.erb' => 'app/views/orders/show.html.erb' }
-            ]
-          )
-        end
-      end
-
-      context 'with an infinite loop' do
-        it 'has links' do
-          partial = 'app/views/orders/_foo.html.erb'
-          root = 'spec/dummy_app/'
-          expect(described_class.new(partial, root).links).to eq(
-            [
-              {"app/views/orders/_foo.html.erb"=>"app/views/orders/_bar.html.erb"},
-              {"app/views/orders/_bar.html.erb"=>"app/views/orders/_foo.html.erb"},
-              {"app/views/orders/_foo.html.erb"=>"app/views/orders/new.html.erb"}
-            ]
-          )
-        end
-      end
+    it 'is valid with a link set' do
+      expect{ described_class.new('foo') }.to raise_exception PartialFinder::NonLinkArgument
     end
   end
 
   describe 'building the graph' do
     context 'with no files' do
       it 'has an empty graph' do
-        partial = 'app/views/orders/_dne.html.erb'
-        root = 'spec/dummy_app/'
-        expect(described_class.new(partial, root).structure).to eq([])
+        links = PartialFinder::LinkSet.new('app/views/orders/_dne.html.erb', 'spec/dummy_app/')
+        expect(described_class.new(links).structure).to eq([])
       end
     end
 
-    context 'with files' do
-      context 'without an infinite loop' do
-        it 'has a built graph' do
-          partial = 'app/views/orders/_sidebar.html.erb'
-          root = 'spec/dummy_app/'
-          expect(described_class.new(partial, root).structure).to eq(
-            [
-              {"app/views/orders/_sidebar.html.erb"=> [
-                {"app/views/orders/_popup.html.erb"=>"app/controllers/orders_controller.rb"},
-                {"app/views/orders/_popup.html.erb"=>"app/views/orders/show.html.erb"}
-              ]}
-            ]
-          )
-        end
+    context 'with a file that exists but is not rendered' do
+      it 'has a built graph' do
+        links = PartialFinder::LinkSet.new('app/views/orders/_foo.html.erb', 'spec/dummy_app/')
+        expect(described_class.new(links).structure).to eq []
       end
+    end
 
-      context 'with an infinite loop' do
-        it 'has a built graph' do
-          pending "This condition is very complicated to handle gracefully and won't appear in v1"
+    context 'full render chains' do
+      it 'has a built graph' do
+        links = PartialFinder::LinkSet.new('app/views/orders/_sidebar.html.erb', 'spec/dummy_app/')
+        expect(described_class.new(links).structure).to eq(
+          [
+            Link.new("app/views/orders/_sidebar.html.erb", [
+              Link.new("app/views/orders/_popup.html.erb", "app/controllers/orders_controller.rb"),
+              Link.new("app/views/orders/_popup.html.erb", [
+                Link.new("app/views/orders/_main.html.erb", "app/controllers/orders_controller.rb"),
+                Link.new("app/views/orders/_main.html.erb", "app/views/orders/show.html.erb"),
+              ]),
+            ]),
+            Link.new("app/views/orders/_sidebar.html.erb", "app/views/orders/new.html.erb")
+          ]
+        )
+      end
+    end
+  end
 
-          partial = 'app/views/orders/_foo.html.erb'
-          root = 'spec/dummy_app/'
-          expect(described_class.new(partial, root).structure).to eq(
-            [
-              {"app/views/orders/_foo.html.erb" => [
-                {"app/views/orders/_bar.html.erb" => [
-                  "Loops back to app/views/orders/_foo.html.erb".colorize(:yellow)
-                ]}
-              ]},
-              {"app/views/orders/_foo.html.erb"=>"app/views/orders/new.html.erb"}
-            ]
-          )
-        end
+  describe 'adding assumptions to the graph' do
+    context 'with no files' do
+      it 'has an empty graph' do
+        links = PartialFinder::LinkSet.new('app/views/orders/_dne.html.erb', 'spec/dummy_app/')
+        expect(described_class.new(links).with_assumptions).to eq([])
+      end
+    end
+
+    context 'with a file that exists but is not rendered' do
+      it 'has a built graph' do
+        links = PartialFinder::LinkSet.new('app/views/orders/_foo.html.erb', 'spec/dummy_app/')
+        expect(described_class.new(links).with_assumptions).to eq []
+      end
+    end
+
+    context 'full render chains and successful assumptions' do
+      it 'has a built graph' do
+        links = PartialFinder::LinkSet.new('app/views/orders/_sidebar.html.erb', 'spec/dummy_app/')
+        expect(described_class.new(links).with_assumptions).to eq(
+          [
+            Link.new("app/views/orders/_sidebar.html.erb", [
+              Link.new("app/views/orders/_popup.html.erb", [
+                Link.new("app/controllers/orders_controller.rb", [
+                  Link.new("Rendered by orders#update", "Routed to at orders/")
+                ])
+              ]),
+              Link.new("app/views/orders/_popup.html.erb", [
+                Link.new("app/views/orders/_main.html.erb", [
+                  Link.new("app/controllers/orders_controller.rb", [
+                    Link.new("Rendered by orders#edit", "Routed to at orders/edit/:id")
+                  ])
+                ]),
+                Link.new("app/views/orders/_main.html.erb", [
+                  Link.new("app/views/orders/show.html.erb", [
+                    Link.new("Rendered by orders#show", "Routed to at orders/show/:id")
+                  ])
+                ])
+              ]),
+            ]),
+            Link.new("app/views/orders/_sidebar.html.erb", [
+              Link.new("app/views/orders/new.html.erb", [
+                Link.new("Assumed rendered by orders#new", "Assumed routed to at orders/new")
+              ])
+            ])
+          ]
+        )
+      end
+    end
+
+    context 'full render chain but not all assumptions can be made' do
+      it 'has a built graph' do
+        expect(true).to be false
       end
     end
   end

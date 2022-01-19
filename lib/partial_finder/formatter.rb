@@ -7,27 +7,53 @@ module PartialFinder
     # which is the format used when rendering a partial in a controller or view.
     def self.path_to_ref(path)
       ref = path.deep_dup
-      ref.remove!('app/views/').remove!(/\.html\.erb\z/)
+      ref.remove!('app/').remove!('views/').remove!(/\.html\.erb\z/)
       ref = ref.split('/')
       ref[-1] = ref.last.remove(/\A_/)
       ref.join('/')
     end
 
     def self.is_partial?(path)
+      return false unless path.present?
       !!path.split('/').last.match(/\A_.+\.erb/)
     end
 
     def self.is_view?(path)
-      !!path.split('/').last.match(/[^\A]_.+\.erb/)
+      return false unless path.present?
+      !!path.split('/').last.match(/\A[^_].+\.erb/)
     end
 
-    #def self.is_view_or_partial?(path)
-    #  is_view?(path) || is_partial?(path)
-    #end
+    def self.is_controller?(path)
+      return false unless path.present?
+      !!path.split('/').last.match(/.+_controller\.rb/)
+    end
+
+    def self.full_view_path(incomplete_path)
+      # remove leading ./
+      path = incomplete_path.remove(/\A\.\//)
+
+      if path.match /\Aviews/
+        "app/#{path}"
+      elsif !path.match /\Aapp/
+        "app/views/#{path}"
+      else
+        path
+      end
+    end
+
+    def self.type_of(path)
+      if is_partial?(path)
+        :partial
+      elsif is_view?(path)
+        :view
+      elsif is_controller?(path)
+        :controller
+      end
+    end
 
     def self.controller_signature_from_view(path)
       cname = path
-      cname.remove!('app/views/').remove!('.html.erb')
+      cname.remove!('app/').remove!('views/').remove!('.html.erb')
       cname = cname.split('/')
       method = cname.pop
       "#{cname.join('/')}##{method}"
@@ -35,7 +61,7 @@ module PartialFinder
 
     def self.controller_signature(path, method)
       cname = path
-      cname.remove!('app/controllers/').remove!('_controller.rb')
+      cname.remove!('app/').remove!('controllers/').remove!('_controller.rb')
       "#{cname}##{method}"
     end
 

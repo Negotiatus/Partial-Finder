@@ -6,7 +6,7 @@ class OrdersController
   end
 
   def edit
-    render partial: "orders/popup"
+    render partial: "orders/main"
   end
 
   def update

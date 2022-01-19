@@ -40,6 +40,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", ">= 12.3.3"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "byebug"
+  spec.add_development_dependency "ruby-prof"
+
   spec.add_dependency 'activesupport'
   spec.add_dependency 'colorize'
 end
