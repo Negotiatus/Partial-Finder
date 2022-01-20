@@ -78,9 +78,9 @@ STR
 
         # Only continue recursion if there's more partials to look through. A view
         # or controller indicates the end of a render chain.
-        collect_links(parent_path) if Formatter.is_partial?(parent_path) #&& links_are_unique?
+        collect_links(parent_path) if Formatter.is_partial?(parent_path) && links_are_unique?
 
-        #values.pop unless links_are_unique?
+        values.pop unless links_are_unique?
       end
     end
   end

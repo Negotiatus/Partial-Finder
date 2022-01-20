@@ -41,7 +41,7 @@ orders PATCH    /update_my_order(.:format) orders#update
 orders GET      /orders/:id/edit(.:format) orders#edit
 ROUT
 
-        expect(described_class.new(gr).structure).to eq(
+        expect(described_class.new(gr, 'spec/dummy_app/').structure).to eq(
           [
             Link.new("app/views/orders/_sidebar.html.erb", [
               Link.new("app/views/orders/_popup.html.erb", [
@@ -73,18 +73,22 @@ ROUT
     end
 
     it 'can determine when routing lookup fails' do
+      pending "need to write test"
       expect(true).to be false
     end
 
     it 'can determine when controller method lookup fails' do
+      pending "need to write test"
       expect(true).to be false
     end
 
     it 'can determine when a particular render chain is unused' do
+      pending "need to write test"
       expect(true).to be false
     end
 
     it 'can determine if an unknown file type is part of the render chain' do
+      pending "need to write test"
       expect(true).to be false
     end
   end

@@ -57,6 +57,11 @@ RSpec.describe PartialFinder::LinkSet do
           ]
         )
       end
+
+      it 'does not include duplicate links' do
+        pending "need to write test"
+        expect(true).to be false
+      end
     end
   end
 end

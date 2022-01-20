@@ -22,7 +22,8 @@ module PartialFinder
       graph = Graph.new(links)
       ag = AssumptionGraph.new(graph)
 
-      puts "=== Set of links ===".colorize(:blue)
+      puts ""
+      puts "=== Set of Links ===".colorize(:blue)
       puts ag.core_graph.links.map{ |li| li.to_s }.join("\n")
       puts ""
       puts "=== Chains without Assumptions ===".colorize(:blue)
