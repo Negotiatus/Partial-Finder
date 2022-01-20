@@ -15,9 +15,17 @@ RSpec.describe PartialFinder::Router do
   end
 
 
-  it "can find routes given a controller signature" do
-    expect(described_class.routes_from("admin/orders/modals#claim")).to eq(
-      ["admin/orders/modals/:id/claim"]
-    )
+  context 'with an existing route' do
+    it "can find routes given a controller signature" do
+      expect(described_class.routes_from("admin/orders/modals#claim")).to eq(
+        ["/admin/orders/modals/:id/claim"]
+      )
+    end
+  end
+
+  context 'with a non-existant route' do
+    it 'returns empty' do
+      expect(described_class.routes_from("foo/testing#edit")).to eq []
+    end
   end
 end

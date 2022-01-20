@@ -11,7 +11,7 @@ module PartialFinder
   # These strings presumably will be either a controller or a view, but if the partial is unused, it could
   # also terminate in itself or another partial.
   class Graph
-    attr_reader :links, :structure, :with_assumptions
+    attr_reader :links, :structure
 
     def initialize(links)
       raise NonLinkArgument.new(links) unless links.is_a? LinkSet
@@ -27,45 +27,11 @@ module PartialFinder
       end
     end
 
+    def self.from(path, root)
+      new(LinkSet.new(path,root))
+    end
+
     private
-
-    def add_assumptions_to(link)
-      if link.parent.is_a? Array
-        add_assumptions_to(link.parent)
-      else
-        link.parent = assumptions_for(link.parent)
-      end
-    end
-
-    def assumptions_for(path)
-      case Formatter.type_of(path)
-      when :partial
-        new_parent = "This render chain is unused".colorize(:yellow)
-      when :view
-        sig = Formatter.controller_signature_from_view(path)
-        routes = Router.routes_from(sig)
-
-        if routes.any?
-          route_msg = routes
-            .join(',')
-            .remove(/,\z/)
-            .colorize(:red)
-        else
-          route_msg = "Could not find route for #{sig}".colorize(:red)
-        end
-
-        new_parent = [Link.new("Rendered by #{sig}", route_msg)]
-      when :controller
-        new_parent = [Link.new(
-          "Rendered by #{}",
-          "Routed to at #{}"
-        )]
-      else
-        new_parent = "Unable to identify #{path}".colorize(:red)
-      end
-
-      [Link.new(path, parent)]
-    end
 
     # This is also where controller methods, routing, and looping messages are
     # determined.

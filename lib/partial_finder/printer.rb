@@ -1,35 +1,33 @@
 module PartialFinder
+  # Printer class can accept and stringify any class that implements #structure such that
+  # #structure returns an array of Links.
   class Printer
-    attr_reader :graph
+    attr_reader :structure, :string
 
     TAB = "  ".freeze
 
-    # Can be given a Graph class or the structure itself.
+    # Can be any class that has a #structure method
     def initialize(graph)
-      @graph = graph.is_a?(Graph) ? graph.structure : graph
+      @structure = graph.structure
       @string = ""
-    end
-
-    def to_s(subgraph = @graph, depth=0)
-      if subgraph.is_a? Array
-        subgraph.each do |links|
-          if links.is_a? String
-            @string << indent(depth) + links + "\n"
-          else
-            @string << indent(depth) + links.keys.first + "\n"
-          end
-
-          new_depth = depth + 1
-
-          links.each{ |_,v| to_s(v, new_depth) } if links.is_a? Hash
-        end
-      else
-        @string << indent(depth) + subgraph + "\n"
-      end
-      @string
+      structure.map{ |link| stringify_link(link) }
     end
 
     private
+
+    def stringify_link(link, depth=0)
+      if link.parent.is_a? Array
+        @string << indent(depth) + link.child + "\n"
+        link.parent.each{ |plink| stringify_link(plink, depth+1) }
+      else
+        @string << stringify_simple_link(link, depth)
+      end
+    end
+
+    # Simple link meaning the link parent is not an array
+    def stringify_simple_link(link, depth)
+      indent(depth) + link.child + "\n" + indent(depth+1) + link.parent + "\n"
+    end
 
     # Returns a string of spaces to represent an indent
     def indent(depth)

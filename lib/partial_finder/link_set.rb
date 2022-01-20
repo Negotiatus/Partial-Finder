@@ -7,19 +7,21 @@ module PartialFinder
   # This is the base structure that is used to generate and print full render chains.
   class LinkSet
     extend Forwardable
-    attr_reader :path, :root, :values
+    attr_reader :path, :search_root, :values, :debug_mode
 
     delegate [:any?, :each, :map, :[], :first] => :@values
 
     # Accepts a file path to a partial and a file path used as the search root.
-    # The search root can be expanded or shrunk as needed, but is allowed to be
-    # flexible since the size of the search directory can drastically effect the
-    # performance of grep. It is recommended to use rails_root/app.
-    def initialize(partial_path, root)
+    # The search root can be expanded or shrunk as needed but should stay within
+    # the Rails root. It can be flexible since the size of the search directory
+    # can drastically effect the performance of grep.
+    # It is recommended to use rails_root/app.
+    def initialize(partial_path, search_root, debug_mode: false)
       raise NonPartialArgument.new(partial_path) unless Formatter.is_partial?(partial_path)
 
+      @debug_mode = debug_mode
       @path = partial_path
-      @root = root
+      @search_root = search_root
       @values = []
       collect_links(path)
     end
@@ -28,7 +30,7 @@ module PartialFinder
     # Non-partials are not searched for as render chains
     # terminate in non-partials (ie, if a view or controller has
     # been found, the render chain can halt).
-    def self.files_that_reference(path, root)
+    def self.files_that_reference(path, search_root, debug_mode: false)
       if Formatter.is_partial? path
         # Scans for instances of the partial being explicitly rendered.
         # For example, given the path app/views/orders/_foo.html.erb, the
@@ -41,9 +43,10 @@ module PartialFinder
 "partial: [\\"']#{Formatter.path_to_ref(path)}[\\"']"
 STR
 
-        `cd #{root} && grep -rl #{term}`
+        puts "Running grep: 'cd #{search_root} && grep -rl #{term}'" if debug_mode
+        `cd #{search_root} && grep -rl #{term}`
           .split("\n")
-          .map{ |a| Formatter.full_view_path(a) }
+          .map{ |a| Formatter.fix_path(a) }
       else
         []
       end
@@ -52,7 +55,7 @@ STR
     private
 
     def files_that_reference(path)
-      self.class.files_that_reference(path, root)
+      self.class.files_that_reference(path, search_root, debug_mode: debug_mode)
     end
 
     # Stringify each link and compare strings

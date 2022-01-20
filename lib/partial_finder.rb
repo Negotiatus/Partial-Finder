@@ -6,6 +6,7 @@ require "partial_finder/printer"
 require "partial_finder/link"
 require "partial_finder/link_set"
 require "partial_finder/graph"
+require "partial_finder/assumption_graph"
 require "colorize"
 require "partial_finder/railtie" if defined?(Rails)
 
@@ -22,6 +23,20 @@ module PartialFinder
   class NonLinkArgument < StandardError
     def initialize(arg)
       super "You may only use this class with a LinkSet, but gave '#{arg}'"
+    end
+  end
+
+  class NonGraphArgument < StandardError
+    def initialize(arg)
+      super "You may only use this class with a Graph, but gave '#{arg}'"
+    end
+  end
+
+  def self.default_root
+    if defined?(Rails)
+      "Rails".constantize.root.to_s
+    else
+      "."
     end
   end
 end
