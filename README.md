@@ -1,6 +1,6 @@
 # PartialFinder
 
-Ever tried to track down where a partial ultimately gets rendered in your Rails app? As apps grow, partial usage and templates get increasingly complicated. PartialFinder adds rake tasks to your Rails app to help you track down the various ways that a given parial may be rendered. You can provide it a partial path and it will output all of the routes and controllers that serve it, along with the intermediate files.
+As Rails apps grow, partial usage and templates get increasingly complicated. PartialFinder adds rake tasks to your Rails app to help you track down the various ways that a given parial may be rendered. You can provide it a partial path and it will output all of the routes and controllers that serve it, along with the intermediate files.
 
 Usage: `rake partial_finder:find\\['path/to/_partial.html.erb'\\]`
 
