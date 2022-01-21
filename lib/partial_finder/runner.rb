@@ -20,17 +20,17 @@ module PartialFinder
 
       links = LinkSet.new(@partial, @root, debug_mode: true)
       graph = Graph.new(links)
-      ag = AssumptionGraph.new(graph)
+      agraph = AssumptionGraph.new(links)
 
       puts ""
       puts "=== Set of Links ===".colorize(:blue)
-      puts ag.core_graph.links.map{ |li| li.to_s }.join("\n")
+      puts links.map{ |li| li.to_s }.join("\n")
       puts ""
       puts "=== Chains without Assumptions ===".colorize(:blue)
-      puts Printer.new(ag.core_graph).string
+      puts Printer.new(graph).string
       puts ""
       puts "=== Full Render Chains ===".colorize(:blue)
-      puts Printer.new(ag).string
+      puts Printer.new(agraph).string
     end
 
     def default_search_root

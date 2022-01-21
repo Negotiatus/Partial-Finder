@@ -1,30 +1,29 @@
 module PartialFinder
-  # AssumptionGraph accepts a standard Graph class and augments it with more information about how
-  # each render chain terminates, ie what controller method is used and what route points to said
-  # controller method.
+  # AssumptionGraph accepts a standard Graph class and augments it with more information about
+  # how each render chain terminates, ie what controller method is used and what route points
+  # to said controller method.
   #
-  # Given the flexiblity of metaprogramming and the many edge cases that exist even in a system with
-  # good conventions like the Rails rendering system, it's best to consider the guesses that this
-  # class makes exactly that - guesses, and sometimes manual checking may be needed to ensure
-  # the correctness of it's output.
+  # Given the flexiblity of metaprogramming and the many edge cases that exist even in a
+  # system with good conventions like the Rails rendering system, it's best to consider the
+  # guesses that this class makes exactly that - guesses, and sometimes manual checking may be
+  # needed to ensure the correctness of it's output.
   #
   # See Graph and LinkSet for more information on the primitives that this class is based on.
-  class AssumptionGraph
-    attr_reader :core_graph, :structure, :custom_rails_root
+  class AssumptionGraph < Graph
+    attr_reader :custom_rails_root
 
     # Custom rails root needs to be set if the Rails root and current working directory
     # of this class are not the same. This is needed to properly load and read controller
     # code. Usually they will be the same, but during testing or when used outside of the
     # standard rake context, this must be set.
-    def initialize(graph, custom_rails_root = nil)
-      raise NonGraphArgument.new(graph) unless graph.is_a? Graph
+    def initialize(links, custom_rails_root = nil)
+      super(links)
       @custom_rails_root = custom_rails_root
-      @core_graph = graph
-      @structure = core_graph.deep_dup.structure.map{ |link| add_assumptions_to(link) }
+      @structure = structure.map{ |link| add_assumptions_to(link) }
     end
 
     def self.from(path,root)
-      new(Graph.from(path,root))
+      new(LinkSet.new(path,root))
     end
 
     private

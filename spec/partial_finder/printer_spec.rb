@@ -17,8 +17,8 @@ OUT
   end
 
   it "can stringify an assumption graph" do
-    graph = PartialFinder::Graph.from('app/views/orders/_sidebar.html.erb', 'spec/dummy_app/')
-    agraph = PartialFinder::AssumptionGraph.new(graph, 'spec/dummy_app/')
+    links = PartialFinder::LinkSet.new('app/views/orders/_sidebar.html.erb', 'spec/dummy_app/')
+    agraph = PartialFinder::AssumptionGraph.new(links, 'spec/dummy_app/')
     pr = described_class.new(agraph)
     expect(pr.string).to eq <<-OUT
 app/views/orders/_sidebar.html.erb

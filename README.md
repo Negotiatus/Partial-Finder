@@ -1,28 +1,35 @@
 # PartialFinder
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/partial_finder`. To experiment with that code, run `bin/console` for an interactive prompt.
+Ever tried to track down where a partial ultimately gets rendered in your Rails app? As apps grow, partial usage and templates get increasingly complicated. PartialFinder adds rake tasks to your Rails app to help you track down the various ways that a given parial may be rendered. You can provide it a partial path and it will output all of the routes and controllers that serve it, along with the intermediate files.
 
-TODO: Delete this and the text above, and describe your gem
+Usage: `rake partial_finder:find\\['path/to/_partial.html.erb'\\]`
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's Gemfile under the development group:
 
 ```ruby
-gem 'partial_finder'
+gem 'partial_finder', "~> 0.1", git: "https://github.com/Negotiatus/Partial-Finder.git"
 ```
 
 And then execute:
 
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install partial_finder
+    $ bundle install
 
 ## Usage
 
-TODO: Write usage instructions here
+To view this help manual outside of the README, run `bundle exec rake partial_finder:help`.
+
+PartialFinder adds two rake tasks to help track down partial usage:
+
+Task: Find
+Usage: `rake partial_finder:find\\['path/to/_partial.html.erb'\\]`
+Outputs all render chains and tries to match each partial with any controllers and routes that eventually render it.
+
+Task: Debug
+Usage: `rake partial_finder:debug\\['path/to/_partial.html.erb'\\]`
+Contains the same output as Find but with additional intermediate steps that can be used to help validate the final results.
+
 
 ## Development
 

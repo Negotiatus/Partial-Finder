@@ -4,14 +4,16 @@ RSpec.describe PartialFinder::AssumptionGraph do
   describe 'initialization' do
     context 'with a graph' do
       it 'is valid' do
-        gr = PartialFinder::Graph.from('app/views/orders/_foo.html.erb', 'spec/dummy_app/')
-        expect{ described_class.new(gr) }.to_not raise_exception
+        links = PartialFinder::LinkSet.new('app/views/orders/_foo.html.erb', 'spec/dummy_app/')
+        expect{ described_class.new(links) }.to_not raise_exception
       end
     end
 
     context 'with something else' do
       it 'is invalid' do
-        expect{ described_class.new('not a graph') }.to raise_exception PartialFinder::NonGraphArgument
+        expect{
+          described_class.new('not a graph')
+        }.to raise_exception PartialFinder::NonLinkArgument
       end
     end
   end
@@ -19,21 +21,25 @@ RSpec.describe PartialFinder::AssumptionGraph do
   describe 'building the structure' do
     context 'with no files' do
       it 'has an empty graph' do
-        gr = PartialFinder::Graph.from('app/views/orders/_dne.html.erb', 'spec/dummy_app/')
-        expect(described_class.new(gr).structure).to eq []
+        links = PartialFinder::LinkSet.new('app/views/orders/_dne.html.erb', 'spec/dummy_app/')
+        expect(described_class.new(links).structure).to eq []
       end
     end
 
     context 'with a file that exists but is not rendered' do
       it 'has a built graph' do
-        gr = PartialFinder::Graph.from('app/views/orders/_foo.html.erb', 'spec/dummy_app/')
-        expect(described_class.new(gr).structure).to eq []
+        links = PartialFinder::LinkSet.new('app/views/orders/_foo.html.erb', 'spec/dummy_app/')
+        expect(described_class.new(links).structure).to eq []
       end
     end
 
     context 'full render chains' do
       it 'has a built graph' do
-        gr = PartialFinder::Graph.from('app/views/orders/_sidebar.html.erb', 'spec/dummy_app/')
+        links = PartialFinder::LinkSet.new(
+          'app/views/orders/_sidebar.html.erb',
+          'spec/dummy_app/'
+        )
+
         allow(PartialFinder::Router).to receive(:routes).and_return <<-ROUT
 orders GET      /orders/:id(.:format)      orders#show
 orders GET      /orders(.:format)          orders#new
@@ -41,7 +47,7 @@ orders PATCH    /update_my_order(.:format) orders#update
 orders GET      /orders/:id/edit(.:format) orders#edit
 ROUT
 
-        expect(described_class.new(gr, 'spec/dummy_app/').structure).to eq(
+        expect(described_class.new(links, 'spec/dummy_app/').structure).to eq(
           [
             Link.new("app/views/orders/_sidebar.html.erb", [
               Link.new("app/views/orders/_popup.html.erb", [
