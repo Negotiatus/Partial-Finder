@@ -30,6 +30,10 @@ Task: Debug
 Usage: `rake partial_finder:debug\\['path/to/_partial.html.erb'\\]`
 Contains the same output as Find but with additional intermediate steps that can be used to help validate the final results.
 
+Here's an example output when running `rake partial_finder:find\["app/views/order_product_links/_description_block.html.erb"\]`:
+
+![example_results](https://content.api.getguru.com/files/view/1a1e8705-652d-4272-999f-0100eefdf97b)
+
 
 ## Development
 
