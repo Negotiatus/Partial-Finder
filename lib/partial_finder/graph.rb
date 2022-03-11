@@ -31,6 +31,10 @@ module PartialFinder
       new(LinkSet.new(path,root))
     end
 
+    def to_s
+      @to_s ||= Printer.new(self).string
+    end
+
     private
 
     # This is also where controller methods, routing, and looping messages are

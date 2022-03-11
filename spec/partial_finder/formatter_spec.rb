@@ -64,7 +64,8 @@ RSpec.describe PartialFinder::Formatter do
         './views/foo.html.erb'      => 'app/views/foo.html.erb',
         'app/views/foobar.html.erb' => 'app/views/foobar.html.erb',
         'views/foobar.html.erb'     => 'app/views/foobar.html.erb',
-        'test_controller.rb'        => 'app/controllers/test_controller.rb'
+        'test_controller.rb'        => 'app/controllers/test_controller.rb',
+        'spec/foo.txt'              => 'spec/foo.txt'
       }
 
       examples.each do |given,expected|

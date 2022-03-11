@@ -79,8 +79,21 @@ ROUT
     end
 
     it 'can determine when routing lookup fails' do
-      pending "need to write test"
-      expect(true).to be false
+      links = PartialFinder::LinkSet.new(
+        'app/views/articles/_sidebar.html.erb',
+        'spec/dummy_app/'
+      )
+      agraph = PartialFinder::AssumptionGraph.new(links)
+      expect(agraph.structure).to eq [
+        Link.new("app/views/articles/_sidebar.html.erb", [
+          Link.new("app/views/articles/edit.html.erb", [
+            Link.new(
+              "Rendered by articles#edit".colorize(:green),
+              "Could not find route for articles#edit".colorize(:red)
+            )
+          ])
+        ])
+      ]
     end
 
     it 'can determine when controller method lookup fails' do
@@ -89,13 +102,35 @@ ROUT
     end
 
     it 'can determine when a particular render chain is unused' do
-      pending "need to write test"
-      expect(true).to be false
+      links = PartialFinder::LinkSet.new(
+        'app/views/orders/_unused.html.erb',
+        'spec/dummy_app/'
+      )
+      agraph = PartialFinder::AssumptionGraph.new(links)
+      expect(agraph.structure).to eq [
+        Link.new("app/views/orders/_unused.html.erb", [
+          Link.new(
+            "app/views/orders/_unused_parent.html.erb",
+            "This render chain appears to be unused".colorize(:yellow)
+          )
+        ])
+      ]
     end
 
     it 'can determine if an unknown file type is part of the render chain' do
-      pending "need to write test"
-      expect(true).to be false
+      links = PartialFinder::LinkSet.new(
+        'app/views/orders/_unexpected.html.erb',
+        'spec/dummy_app/'
+      )
+      agraph = PartialFinder::AssumptionGraph.new(links)
+      expect(agraph.structure).to eq [
+        Link.new("app/views/orders/_unexpected.html.erb", [
+          Link.new(
+            "unexpected_match.txt",
+            "Match of unknown type found in unexpected_match.txt".colorize(:yellow)
+          )
+        ])
+      ]
     end
   end
 end

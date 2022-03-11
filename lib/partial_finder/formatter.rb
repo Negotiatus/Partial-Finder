@@ -43,7 +43,13 @@ module PartialFinder
       if path.match(/\Aviews/) || path.match(/\Acontrollers/)
         "app/#{path}"
       elsif !path.match /\Aapp/
-        is_view?(path) ? "app/views/#{path}" : "app/controllers/#{path}"
+        if is_view?(path)
+          "app/views/#{path}"
+        elsif is_controller?(path)
+          "app/controllers/#{path}"
+        else
+          path
+        end
       else
         path
       end

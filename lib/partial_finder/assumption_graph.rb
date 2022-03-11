@@ -15,15 +15,11 @@ module PartialFinder
     # Custom rails root needs to be set if the Rails root and current working directory
     # of this class are not the same. This is needed to properly load and read controller
     # code. Usually they will be the same, but during testing or when used outside of the
-    # standard rake context, this must be set.
+    # standard rake context, may need to be set.
     def initialize(links, custom_rails_root = nil)
       super(links)
       @custom_rails_root = custom_rails_root
       @structure = structure.map{ |link| add_assumptions_to(link) }
-    end
-
-    def self.from(path,root)
-      new(LinkSet.new(path,root))
     end
 
     private
@@ -41,13 +37,13 @@ module PartialFinder
     def assumptions_for(link)
       case Formatter.type_of(link.parent)
       when :partial
-        new_parent = "This render chain may be unused".colorize(:yellow)
+        new_parent = "This render chain appears to be unused".colorize(:yellow)
       when :view
         new_parent = new_parent_for_view(link.parent)
       when :controller
         new_parent = new_parent_for_controller(link)
       else
-        new_parent = "Unable to identify type of #{path}".colorize(:red)
+        new_parent = "Match of unknown type found in #{link.parent}".colorize(:yellow)
       end
 
       [Link.new(link.parent, new_parent)]
