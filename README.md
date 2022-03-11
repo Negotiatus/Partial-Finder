@@ -2,7 +2,7 @@
 
 As Rails apps grow, partial usage and templates get increasingly complicated. PartialFinder adds rake tasks to your Rails app to help you track down the various ways that a given parial may be rendered. You can provide it a partial path and it will output all of the routes and controllers that serve it, along with the intermediate files.
 
-Usage: `rake partial_finder:find\\['path/to/_partial.html.erb'\\]`
+Usage: `rake partial_finder:find\['path/to/_partial.html.erb'\]`
 
 ## Installation
 
@@ -23,11 +23,11 @@ To view this help manual outside of the README, run `bundle exec rake partial_fi
 PartialFinder adds two rake tasks to help track down partial usage:
 
 Task: Find
-Usage: `rake partial_finder:find\\['path/to/_partial.html.erb'\\]`
+Usage: `rake partial_finder:find\['path/to/_partial.html.erb'\]`
 Outputs all render chains and tries to match each partial with any controllers and routes that eventually render it.
 
 Task: Debug
-Usage: `rake partial_finder:debug\\['path/to/_partial.html.erb'\\]`
+Usage: `rake partial_finder:debug\['path/to/_partial.html.erb'\]`
 Contains the same output as Find but with additional intermediate steps that can be used to help validate the final results.
 
 Here's an example output when running `rake partial_finder:find\["app/views/order_product_links/_description_block.html.erb"\]`:
