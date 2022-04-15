@@ -9,7 +9,7 @@ Usage: `rake partial_finder:find\['path/to/_partial.html.erb'\]`
 Add this line to your application's Gemfile under the development group:
 
 ```ruby
-gem 'partial_finder', "~> 0.1", git: "https://github.com/Negotiatus/Partial-Finder.git"
+gem 'partial_finder', "~> 0.1.1", git: "https://github.com/Negotiatus/Partial-Finder.git"
 ```
 
 And then execute:
