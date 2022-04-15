@@ -42,4 +42,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "activesupport", "~> 6"
   spec.add_dependency "colorize", ">= 0.8"
+
+  spec.required_ruby_version = '>= 2.6'
 end
