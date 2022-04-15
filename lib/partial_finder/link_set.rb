@@ -58,7 +58,6 @@ STR
       self.class.files_that_reference(path, search_root, debug_mode: debug_mode)
     end
 
-    # Stringify each link and compare strings
     def links_are_unique?
       values.uniq.size == values.size
     end
