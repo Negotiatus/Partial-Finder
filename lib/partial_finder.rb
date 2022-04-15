@@ -7,11 +7,10 @@ require "partial_finder/link"
 require "partial_finder/link_set"
 require "partial_finder/graph"
 require "partial_finder/assumption_graph"
-require "colorize"
 require "partial_finder/railtie" if defined?(Rails)
-
-# TODO: smaller scope
-require "active_support/all"
+require "colorize"
+require "active_support/core_ext/object"
+require "active_support/core_ext/string"
 
 module PartialFinder
   class NonPartialArgument < StandardError
